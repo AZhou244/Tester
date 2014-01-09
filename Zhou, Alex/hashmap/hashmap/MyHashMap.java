@@ -1,8 +1,10 @@
 package hashmap;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -65,23 +67,50 @@ public class MyHashMap<K,V>
 		
 		theBuckets.get(indexOfBucket).add(newEntry);
 		size++;
-		return oldValue
-				;
+		return oldValue;
 			}
 	
 	public V get(Object key)
 	{
-		return null;
+		
+		Map.Entry<K, V> entry = getEntry(key);
+			if (entry == null)
+			return null;
+		return entry.getValue();   
 	}
 
 	public V remove(Object key)
 	{
-		return null;
+
+		Map.Entry<K, V> entry = getEntry(key);
+		if (entry == null){
+			return null;
+		}
+		int indexOfBucket = getIndex(key);
+		V oldValue = null;
+		oldValue = entry.getValue();
+		theBuckets.get(indexOfBucket).remove(entry);
+		if (theBuckets.get(indexOfBucket).size()==0){
+			theBuckets.get(indexOfBucket).add(null);
+		}
+		return oldValue;
 	}
 	
 	public Set<K> keySet()
 	{
-		return null;
+
+		Set<K> keySet = new HashSet<K>();
+			
+		for (int x =0; x<theBuckets.size(); x++){
+			Iterator<Entry<K, V>> itr = theBuckets.get(x).iterator();
+			while (itr.hasNext()){
+				Map.Entry<K, V> entry = itr.next();
+				if (entry!= null && (entry.getKey()!= null)){
+					keySet.add(entry.getKey());
+				}
+			}
+		}
+		return keySet;
 	}	
 
 	/**
@@ -89,7 +118,14 @@ public class MyHashMap<K,V>
 	 */
 	private int getIndex(Object key)
 	{
-		return -1;
+		if (key == null)
+			throw new NullPointerException();
+		int h = key.hashCode();
+		if (h<0) 
+			h = -h;
+		int bucketIndex = h % CAPACITY;
+		return bucketIndex;   
+	
 	}
 
 	/**
@@ -97,6 +133,22 @@ public class MyHashMap<K,V>
 	 */
 	private Map.Entry<K, V> getEntry(Object key)
 	{
+		if (key == null){
+			throw new NullPointerException();
+		}
+		Map.Entry<K, V> entry;
+		int indexOfBucket = getIndex(key);
+		if (theBuckets.get(indexOfBucket).get(0) == null)		//if bucket is empty
+			return null;
+		else{
+			for (int x =0; x<theBuckets.get(indexOfBucket).size(); x++){
+				entry = theBuckets.get(indexOfBucket).get(x);
+				if(entry!= null && key.equals(entry.getKey())){
+					return entry;
+				}
+			}
+		}
 		return null;
+	
 	}
 }
